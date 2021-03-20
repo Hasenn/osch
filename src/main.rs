@@ -1,39 +1,20 @@
+mod osc;
+
+
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{
     Data, OutputCallbackInfo, Sample, SampleFormat, SampleRate, StreamConfig, StreamInstant,
 };
 use std::{thread, time::Duration};
 
-#[derive(Clone)]
-struct SynthState {
-    sample_rate: u32,
-    phase: f32,
-    frequency: f32,
-    mod1_clock: f32,
-}
-impl SynthState {
-    fn new(sample_rate: u32, frequency: f32) -> SynthState {
-        SynthState {
-            sample_rate: sample_rate,
-            phase: 0.0f32,
-            frequency: frequency,
-            mod1_clock: 0.,
-        }
-    }
-    fn run<T: Sample>(&mut self, data: &mut [T], _: &cpal::OutputCallbackInfo) {
-        let isr = 1.0 / (self.sample_rate as f32);
-        for sample in data.iter_mut() {
-            self.phase = (self.phase + self.frequency * isr).fract();
-            self.mod1_clock = (self.mod1_clock + isr).fract();
-            
-            let mut out = (self.phase * std::f32::consts::TAU).sin();
-            out += (self.phase * 2. * std::f32::consts::TAU).sin();
-
-            self.frequency += 2000. * isr * (self.mod1_clock * 2. * std::f32::consts::TAU).sin();
-            *sample = Sample::from(&out);
-        }
-    }
-}
+use std::sync::{
+    Arc,
+    Mutex
+};
+use osc::{
+    Dsp,
+    Osc
+};
 
 fn main() {
     // cpal plumbing
@@ -54,37 +35,48 @@ fn main() {
     let sample_format = supported_config.sample_format();
     let config: StreamConfig = supported_config.into();
 
-    #[cfg(debug)]
     println!(
         "
 Config : {:?}
 Device : {:?}
+Sample Format : {:?}
         ",
         &config,
-        &device.name()
+        &device.name(),
+        sample_format
     );
 
-    let mut state = SynthState::new(config.sample_rate.0, 0.);
+    let mut osc1 = osc::SimpleOsc::new(config.sample_rate.0, 220.);
+    let mut osc2 = osc::SimpleOsc::new(config.sample_rate.0, 320.);
+    let mut osc3 = Arc::new(Mutex::new(osc1.clone()));
 
+    let _osc3 = Arc::clone(&osc3);
     let stream = match sample_format {
-        SampleFormat::F32 => device.build_output_stream(
-            &config,
-            move |data, info| state.run::<f32>(data, info),
-            err_fn,
-        ),
         SampleFormat::I16 => device.build_output_stream(
             &config,
-            move |data, info| state.run::<i16>(data, info),
+            move |data, info| {
+                
+                for sample in data.iter_mut() {
+                    *sample = Sample::from(&0.);
+                }
+                //osc1.process::<i16>(data);
+                //osc2.process::<i16>(data);
+                {
+                    &_osc3.lock().unwrap().process::<i16>(data);
+                }
+            },
             err_fn,
         ),
-        SampleFormat::U16 => device.build_output_stream(
-            &config,
-            move |data, info| state.run::<i16>(data, info),
-            err_fn,
-        ),
+        _ => unimplemented!()
     }
     .unwrap();
     
     stream.play().unwrap();
-    thread::sleep(Duration::from_secs(5));
+    
+    thread::sleep(Duration::from_secs(1));
+    osc3.lock().unwrap().set_frequency(444.);
+    thread::sleep(Duration::from_secs(1));
+    osc3.lock().unwrap().set_frequency(666.);
+    thread::sleep(Duration::from_secs(1));
+
 }
