@@ -1,10 +1,9 @@
-use cpal::{
-    Data, OutputCallbackInfo, Sample, SampleFormat, SampleRate, StreamConfig, StreamInstant,
-};
+use cpal::Sample;
 
 pub trait Osc {
     fn set_frequency(&mut self, hertz: f32);
-    fn generate<T: Sample>(&mut self, data : &mut [T]);
+    fn generate<T: Sample>(&mut self, data: &mut [T]);
+    fn pause(&mut self, b: bool);
 }
 
 pub trait Dsp {
@@ -18,6 +17,7 @@ pub struct SimpleOsc {
     phase: f32,
     frequency: f32,
     mod1_clock: f32,
+    paused: bool,
 }
 
 impl SimpleOsc {
@@ -26,7 +26,8 @@ impl SimpleOsc {
             sample_rate: sample_rate,
             phase: 0.,
             frequency: frequency,
-            mod1_clock: 0.
+            mod1_clock: 0.,
+            paused: false,
         }
     }
 }
@@ -36,27 +37,32 @@ impl Osc for SimpleOsc {
         self.frequency = hertz;
     }
     #[inline]
-    fn generate<T: Sample>(&mut self, data : &mut [T]) {
+    fn generate<T: Sample>(&mut self, data: &mut [T]) {
         let isr = 1.0 / (self.sample_rate as f32);
         for sample in data.iter_mut() {
             let value = sample.to_f32();
             self.phase = (self.phase + self.frequency * isr).fract();
             self.mod1_clock = (self.mod1_clock + isr).fract();
-            
+
             let mut out = (self.phase * std::f32::consts::TAU).sin();
             out += (self.phase * 2. * std::f32::consts::TAU).sin();
 
-            self.frequency += 2000. * isr * (self.mod1_clock * 2. * std::f32::consts::TAU).sin();
-            *sample = Sample::from(&(out+value));
+            *sample = Sample::from(&(out + value));
         }
+    }
+    fn pause(&mut self, b: bool) {
+        self.paused = b;
     }
 }
 
-
 impl Dsp for SimpleOsc {
-    fn channel_count() -> usize {1}
+    fn channel_count() -> usize {
+        1
+    }
 
     fn process<T: Sample>(&mut self, data: &mut [T]) {
-        self.generate(data)
+        if !self.paused {
+            self.generate(data)
+        }
     }
 }
