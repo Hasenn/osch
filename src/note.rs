@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 const FREQ: [f32; 128] = [
     8.175798915643707,
     8.661957218027252,
@@ -130,6 +131,7 @@ const FREQ: [f32; 128] = [
 ];
 
 #[inline]
+#[allow(dead_code)]
 pub fn midi(n: usize) -> f32 {
     FREQ[n]
 }

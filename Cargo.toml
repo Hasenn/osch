@@ -1,5 +1,5 @@
 [package]
-name = "fun"
+name = "osch"
 version = "0.1.0"
 authors = ["Eliott Veyrier <eliott.veyrier@umontpellier.fr>"]
 edition = "2018"
