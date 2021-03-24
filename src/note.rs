@@ -130,8 +130,15 @@ const FREQ: [f32; 128] = [
     12543.853951415984,
 ];
 
+/// Midi note to hertz conversion, in `A=440Hz` equal temperament
+///
+/// middle C is note 60, standard tuning A is note 69
+///
+/// ## Panics
+/// this will panic on values outside the `0-127` range
+///
 #[inline]
 #[allow(dead_code)]
-pub fn midi(n: usize) -> f32 {
-    FREQ[n]
+pub fn midi(note: usize) -> f32 {
+    FREQ[note]
 }
