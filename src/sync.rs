@@ -89,20 +89,4 @@ mod tests {
         assert_eq!(a.swap(4.1, Ordering::Relaxed), 3.212);
         assert_eq!(a.load(Ordering::Relaxed), 4.1)
     }
-
-    #[test]
-    fn test_stuff() {
-        use crate::sync::{AtomicF32, Sharer};
-        use std::{sync::atomic::Ordering, thread};
-        let mut _sharer = Sharer::new(AtomicF32::new(3.1), 1);
-        let shared = _sharer.get_shared();
-
-        thread::spawn(move || {
-            let mut owned = _sharer.owned.borrow_mut();
-            *owned += 1;
-            _sharer.shared.load(Ordering::Relaxed);
-        });
-        &shared.store(444., Ordering::Relaxed);
-        &shared;
-    }
 }

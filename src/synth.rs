@@ -56,8 +56,8 @@ impl Dsp for MySynth {
                 // reset release to 1 rapidly
                 owned.release_time = (owned.release_time + isr * 40.).clamp(0., 1.)
             }
-            if !playing { 
-                // reset envelope rapidly
+            if !playing {
+                // reset envelope to 0 rapidly
                 owned.envelope_time = (owned.envelope_time - isr * 40.).clamp(0., 1.);
                 // release goes down to 0 in 1/RELEASE seconds
                 owned.release_time = (owned.release_time - isr * RELEASE).clamp(0., 1.);

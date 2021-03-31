@@ -28,7 +28,7 @@ fn main() {
     let config: StreamConfig = supported_config.into();
 
     println!(
-"Config : {:?}
+        "Config : {:?}
 Device : {:?}
 Sample Format : {:?}",
         &config,
@@ -58,10 +58,8 @@ Sample Format : {:?}",
         _ => unimplemented!("Sample format not supported"),
     }
     .unwrap();
-
     // Ensure the stream is playing
     stream.play().unwrap();
-
 
     // play a little melody
     // this jitters a bit due to how we communicate with the audio thread
