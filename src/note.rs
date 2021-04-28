@@ -1,5 +1,5 @@
 #[allow(dead_code)]
-const FREQ: [f32; 128] = [
+static FREQ: [f32; 128] = [
     8.175_799,
     8.661_957,
     9.177_024,
