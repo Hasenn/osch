@@ -1,4 +1,4 @@
-use std::{ iter::IntoIterator, rc::Rc};
+use std::{ iter::IntoIterator};
 
 /// The base unit of sound : Either a duration of silence, or a duration and note.
 #[derive(Debug, PartialEq, Copy, Clone)]
@@ -60,9 +60,9 @@ impl Atom {
                 let particles : Vec<_> = self.atoms_slice().unwrap().iter()
                 .map(|x| x.iter()).flatten().collect();
 
-                return Box::new(
+                Box::new(
                     particles.repeat(*times as usize).into_iter()
-                );
+                )
             }
         }
     }
