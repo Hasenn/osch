@@ -14,7 +14,7 @@ It uses `cpal` as its audio backend, and atomic loads and stores as a mean of co
 
 Sequences are encoded as a vector of `Atoms`, the bytecode's instructions.
 
-The language is structured like a tree with simpler instructions, named `Particles`.
+The language is structured like a tree with simpler instructions as leafs, named `Particles`.
 
 It uses polish notation to compose atoms. An example of sequence could be
 
