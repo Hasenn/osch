@@ -46,5 +46,5 @@ We could reckognize being in between valid code and parse as we go, allowing bei
 
 ### Inspirations
 
-this is inspired by the spell system in the game [Noita](https://noita.fandom.com/wiki/Guide_To_Wand_Mechanics) by nolla studios
+this is inspired by the spell system in the game [Noita](https://noita.wiki.gg/wiki/Guide_To_Wand_Mechanics) by nolla studios
 
